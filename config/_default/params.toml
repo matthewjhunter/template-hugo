@@ -1,0 +1,9 @@
+# Site parameters
+# Theme-specific parameters go here. Common examples:
+
+# description = "A Hugo site built from template-hugo"
+# author = "Your Name"
+
+# [social]
+#   github = "https://github.com/username"
+#   twitter = "https://twitter.com/username"

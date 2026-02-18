@@ -1,0 +1,19 @@
+# Hugo outputs
+public/
+resources/
+.hugo_build.lock
+hugo_stats.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# OMC
+.omc/

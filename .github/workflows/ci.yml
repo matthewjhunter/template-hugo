@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: latest
+          extended: true
+
+      - name: Build
+        run: hugo --minify
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: public
+          path: public/
+
+  link-check:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: public
+          path: public/
+
+      - name: Install hugo-link-checker
+        run: |
+          curl -sL https://github.com/infodancer/hugo-link-checker/releases/download/latest/hugo-link-checker-linux-amd64.gz | gunzip > hugo-link-checker
+          chmod +x hugo-link-checker
+
+      - name: Check links
+        run: ./hugo-link-checker -root ./public -check-external -format text
