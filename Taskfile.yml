@@ -1,0 +1,21 @@
+version: "3"
+
+tasks:
+  dev:
+    desc: Start Hugo dev server with drafts
+    cmd: hugo server -D --bind 0.0.0.0
+
+  build:
+    desc: Build site for production
+    cmd: hugo --minify
+
+  new:
+    desc: Create a new post
+    cmd: hugo new content posts/{{.CLI_ARGS}}.md
+
+  link-check:
+    desc: Check for broken links in built site
+    deps: [build]
+    cmd: |
+      echo "Run hugo-link-checker locally or use CI"
+      echo "See: https://github.com/infodancer/hugo-link-checker"
