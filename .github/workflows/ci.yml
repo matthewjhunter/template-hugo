@@ -41,10 +41,8 @@ jobs:
           name: public
           path: public/
 
-      - name: Install hugo-link-checker
-        run: |
-          curl -sL https://github.com/infodancer/hugo-link-checker/releases/download/latest/hugo-link-checker-linux-amd64.gz | gunzip > hugo-link-checker
-          chmod +x hugo-link-checker
-
-      - name: Check links
-        run: ./hugo-link-checker -root ./public -check-external -format text
+      - uses: matthewjhunter/hugo-link-checker@v0.1.0
+        with:
+          root: ./public
+          check-external: 'true'
+          format: text
