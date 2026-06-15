@@ -13,13 +13,6 @@ tasks:
     desc: Create a new post
     cmd: hugo new content posts/{{.CLI_ARGS}}.md
 
-  link-check:
-    desc: Check for broken links in built site
-    deps: [build]
-    cmd: |
-      echo "Run hugo-link-checker locally or use CI"
-      echo "See: https://github.com/infodancer/hugo-link-checker"
-
   images:
     desc: Convert content/static images to webp and remove the originals (needs cwebp)
     cmd: |
