@@ -19,3 +19,56 @@ tasks:
     cmd: |
       echo "Run hugo-link-checker locally or use CI"
       echo "See: https://github.com/infodancer/hugo-link-checker"
+
+  images:
+    desc: Convert content/static images to webp and remove the originals (needs cwebp)
+    cmd: |
+      find content static -type f \
+        \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" \) \
+        -not -iname "*favicon*" -not -iname "*apple-touch-icon*" | while read -r img; do
+        webp="${img%.*}.webp"
+        echo "Converting: $img -> $webp"
+        cwebp -q 85 "$img" -o "$webp" && rm "$img"
+      done
+
+  list-images:
+    desc: Fail if any non-webp images remain (CI/pre-push guard)
+    cmd: |
+      remaining=$(find content static -type f \
+        \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.gif" -o -iname "*.bmp" -o -iname "*.tiff" \) \
+        -not -iname "*favicon*" -not -iname "*apple-touch-icon*")
+      if [ -n "$remaining" ]; then
+        echo "Error: non-webp images found. Run 'task images' to convert them:"
+        echo "$remaining"
+        exit 1
+      fi
+
+  drafts:
+    desc: Fail if any content is still marked draft (CI/pre-push guard)
+    cmd: |
+      drafts=$(grep -rl '^draft: true' content/ --include='*.md' || true)
+      if [ -n "$drafts" ]; then
+        echo "Draft posts found:"
+        echo "$drafts"
+        exit 1
+      fi
+      echo "No draft posts found."
+
+  publish:
+    desc: Flip draft:true -> draft:false on all draft content
+    cmd: |
+      grep -rl '^draft: true' content/ --include='*.md' | while read -r f; do
+        sed -i 's/^draft: true/draft: false/' "$f"
+        echo "Published: $f"
+      done
+
+  lint:
+    desc: Lint markdown (uses markdownlint-cli2 via npx -- no package.json needed)
+    cmd: npx --yes markdownlint-cli2 "content/**/*.md"
+
+  check:
+    desc: Pre-push checks - markdown lint, no leftover drafts, no non-webp images
+    cmds:
+      - task: lint
+      - task: drafts
+      - task: list-images
